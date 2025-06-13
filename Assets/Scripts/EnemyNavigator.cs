@@ -11,7 +11,7 @@ public class EnemyNavigator : MonoBehaviour
 
     GameObject player;
     NavMeshAgent agent;
-    float chaseRange = 4f;
+    float chaseRange = 8f;
 
     bool waiting = false;
     float waitTimer = 0f;
