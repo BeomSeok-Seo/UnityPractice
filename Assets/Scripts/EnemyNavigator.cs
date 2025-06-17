@@ -17,11 +17,14 @@ public class EnemyNavigator : MonoBehaviour
     float waitTimer = 0f;
     float waitTime = 2f;
 
+    MeshCollider site;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         player = GameObject.FindWithTag("Player");
         agent = GetComponent<NavMeshAgent>();
+        site = GetComponentInChildren<MeshCollider>();
 
         currentState = EnemyState.Patrol;
         GoToNextPoint();
@@ -30,14 +33,15 @@ public class EnemyNavigator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Vector3.Distance(transform.position, player.transform.position) < chaseRange)
-        {
-            currentState = EnemyState.Chase;
-        }
-        else
-        {
-            currentState = EnemyState.Patrol;
-        }
+
+        //if (Vector3.Distance(transform.position, player.transform.position) < chaseRange)
+        //{
+        //    currentState = EnemyState.Chase;
+        //}
+        //else
+        //{
+        //    currentState = EnemyState.Patrol;
+        //}
 
         switch (currentState)
         {
@@ -51,6 +55,20 @@ public class EnemyNavigator : MonoBehaviour
 
             case EnemyState.Attack:
                 break;
+        }
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.tag == "Player" && 
+            Physics.Raycast(transform.position, other.transform.position - transform.position, out RaycastHit hit) &&
+            hit.collider.gameObject.tag == "Player")
+        {
+            currentState = EnemyState.Chase;
+        }
+        else
+        {
+            currentState = EnemyState.Patrol;
         }
     }
 
