@@ -6,11 +6,12 @@ using UnityEngine;
 public class Inventory : MonoBehaviour
 {
     public GameObject buttonPrefab;
+    private GameObject invenView;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        invenView = GameObject.Find("InventoryView");
     }
 
     // Update is called once per frame
@@ -21,16 +22,23 @@ public class Inventory : MonoBehaviour
 
     public void Show()
     {
-        //GUIContent gUI = gameObject.GetComponent<GUIContent>();
-
-        List<string> items = GameManager.Instance.items;
-
-        foreach (string item in items)
+        if (invenView.activeInHierarchy)
         {
-            Instantiate(buttonPrefab, gameObject.transform);
-            TMP_Text text = buttonPrefab.GetComponentInChildren<TMP_Text>();
-
-            text.text = item;
+            invenView.SetActive(false);
+            return;
         }
+        else
+        {
+            invenView.SetActive(true);
+        }
+    }
+
+    public void AddItem(string item)
+    {
+        GameObject obj = Instantiate(buttonPrefab, gameObject.transform);
+        TMP_Text text = obj.GetComponentInChildren<TMP_Text>();
+
+        //Debug.Log(item);
+        text.text = item;
     }
 }

@@ -23,7 +23,13 @@ public class PlayerItemContoller : MonoBehaviour
 
             Debug.Log("æ∆¿Ã≈€ »πµÊ!!");
 
-            GameManager.Instance.AddItem("∆˜º«");
+            GameManager.Instance.AddItem(targetObj);
+
+            GameObject obj = GameObject.FindGameObjectWithTag("InventoryUI");
+
+            Inventory inven = obj.GetComponent<Inventory>();
+
+            inven.AddItem(targetObj.name);
         }
     }
 }

@@ -16,6 +16,11 @@ public class PlayerMouseController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
+            if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() == true)
+            {
+                return;
+            }
+
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hitInfo))
             {
