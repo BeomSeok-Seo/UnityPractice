@@ -3,6 +3,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
+    public GameObject doorPrefab;
 
     public int score = 0;
 
@@ -27,5 +28,14 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public void IncreasScore(int score)
+    {
+        this.score += score;
+        if (doorPrefab != null && this.score >= 50)
+        {
+            Instantiate(doorPrefab);
+        }
     }
 }

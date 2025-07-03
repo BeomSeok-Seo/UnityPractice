@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -17,6 +18,8 @@ public class PlayerController : MonoBehaviour
     bool isGrounded = false;
     int groundLayer = -1;
 
+    int jumpCount = 2;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -34,10 +37,14 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        if (Input.GetKeyDown(KeyCode.Space) /*&& isGrounded*/)
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-            animator.SetTrigger("Jump");
+            jumpCount--;
+            if (jumpCount > 0)
+            {
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+                animator.SetTrigger("Jump");
+            }
         }
     }
 
@@ -46,6 +53,11 @@ public class PlayerController : MonoBehaviour
         float move = Input.GetAxis("Horizontal") * moveSpeed;
 
         rb.linearVelocity = new Vector2(move, rb.linearVelocity.y);
+
+
+        bool isWall = Physics2D.Raycast(transform.position, Vector2.left * (-Math.Sign(move)), 0.3f, groundLayer);
+
+        Debug.Log(isWall);
 
         if (move < 0)
         {
@@ -61,15 +73,21 @@ public class PlayerController : MonoBehaviour
 
         isGrounded = Physics2D.Raycast(transform.position, Vector2.down, 0.1f, groundLayer);
         animator.SetBool("IsGrounded", isGrounded);
+        if (isGrounded == true)
+        {
+            jumpCount = 2;
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Coin"))
         {
-            GameManager.Instance.score += 10;
+            GameManager.Instance.IncreasScore(10);
             scoreText.text = $"Score : {GameManager.Instance.score}";
-            Destroy(collision.gameObject);
+
+            collision.gameObject.GetComponent<CoinContoller>().StartCoinAnimation();
+            //Destroy(collision.gameObject);
         }
     }
 }
