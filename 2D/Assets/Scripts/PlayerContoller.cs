@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour
     float jumpForce = 8.8f;
     bool isGrounded = false;
     int groundLayer = -1;
+    int usableLayer = -1;
 
     int jumpCount = 2;
 
@@ -30,6 +31,7 @@ public class PlayerController : MonoBehaviour
         SpriteRenderer = GetComponent<SpriteRenderer>();
 
         groundLayer = LayerMask.GetMask("Platform");
+        usableLayer = LayerMask.GetMask("Usable");
 
         scoreText = GameObject.FindGameObjectWithTag("ScoreText").GetComponent<TMP_Text>();
     }
@@ -55,9 +57,9 @@ public class PlayerController : MonoBehaviour
         rb.linearVelocity = new Vector2(move, rb.linearVelocity.y);
 
 
-        bool isWall = Physics2D.Raycast(transform.position, Vector2.left * (-Math.Sign(move)), 0.3f, groundLayer);
-
-        Debug.Log(isWall);
+        bool isWall = Physics2D.Raycast(transform.position, Vector2.left * (-Math.Sign(move)), 0.3f, usableLayer);
+        animator.SetBool("PushBox", isWall);
+        //Debug.Log(isWall);
 
         if (move < 0)
         {
@@ -71,7 +73,7 @@ public class PlayerController : MonoBehaviour
         //Debug.Log(move);
         animator.SetFloat("Speed", Mathf.Abs(move));
 
-        isGrounded = Physics2D.Raycast(transform.position, Vector2.down, 0.1f, groundLayer);
+        isGrounded = Physics2D.Raycast(transform.position, Vector2.down, 0.1f, usableLayer | groundLayer);
         animator.SetBool("IsGrounded", isGrounded);
         if (isGrounded == true)
         {
