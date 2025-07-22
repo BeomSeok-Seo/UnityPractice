@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -6,6 +7,8 @@ public class GameManager : MonoBehaviour
     public GameObject doorPrefab;
 
     public int score = 0;
+
+    TMP_Text scoreText;
 
     private void Awake()
     {
@@ -21,7 +24,8 @@ public class GameManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        scoreText = GameObject.FindGameObjectWithTag("ScoreText").GetComponent<TMP_Text>();
+
     }
 
     // Update is called once per frame
@@ -37,5 +41,6 @@ public class GameManager : MonoBehaviour
         {
             Instantiate(doorPrefab);
         }
+        scoreText.text = $"Score : {this.score}";
     }
 }
