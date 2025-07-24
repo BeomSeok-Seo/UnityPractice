@@ -105,5 +105,10 @@ public class PlayerController : MonoBehaviour
         {
             Respawn();
         }
+
+        if (collision.CompareTag("StageGoal"))
+        {
+            GameManager.Instance.CheckStageClear();
+        }
     }
 }
