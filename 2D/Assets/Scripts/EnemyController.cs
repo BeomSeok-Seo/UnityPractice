@@ -3,30 +3,30 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
-    float direction = 1f;
-    float speed = 3f;
+    protected float speed = 3f;
 
-    Animator animator;
-    SpriteRenderer SpriteRenderer;
+    protected Animator animator;
+    protected BoxCollider2D boxCollider;
+    protected Rigidbody2D rb;
 
-    BoxCollider2D boxCollider;
-    Rigidbody2D rb;
+    protected GameObject player;
+    protected PlayerController playerController;
 
-    PlayerController playerController;
+    protected SpriteRenderer spriteRenderer;
 
     ContactPoint2D[] contacts = new ContactPoint2D[10];
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    protected virtual void Start()
     {
+        player = GameObject.FindGameObjectWithTag("Player");
+        playerController = player.GetComponent<PlayerController>();
+
         animator = GetComponent<Animator>();
-
-        SpriteRenderer = GetComponent<SpriteRenderer>();
-
         boxCollider = GetComponent<BoxCollider2D>();
         rb = GetComponent<Rigidbody2D>();
 
-        playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     // Update is called once per frame
@@ -35,24 +35,7 @@ public class EnemyController : MonoBehaviour
         
     }
 
-    private void FixedUpdate()
-    {
-        // 이동
-        transform.Translate(Vector2.right * direction * speed * Time.deltaTime);
-        animator.SetFloat("Speed", speed);
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag("TurnPoint"))
-        {
-            // 방향 전환
-            direction *= -1;
-            SpriteRenderer.flipX = !SpriteRenderer.flipX;
-        }
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
+    protected virtual void OnCollisionEnter2D(Collision2D collision)
     {
 
         if (collision.collider.CompareTag("Player"))
@@ -92,7 +75,8 @@ public class EnemyController : MonoBehaviour
             }
         }
     }
-    private IEnumerator Death()
+
+    protected IEnumerator Death()
     {
         // 애니메이션 Death를 재생
         animator.SetTrigger("Death");
