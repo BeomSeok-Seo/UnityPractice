@@ -15,6 +15,8 @@ public class JumpingEnemyController : EnemyController
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     protected override void Start()
     {
+        healthPoint = 50;
+
         groundLayer = LayerMask.GetMask("Platform");
 
         base.Start();
@@ -36,24 +38,27 @@ public class JumpingEnemyController : EnemyController
 
     private void FixedUpdate()
     {
-        // 점프 시간 체크
-        if (jumpTimer < jumpInterval)
+        if (true)
         {
-            // 점프 할 타이밍이 아니면 시간을 더하면서 기다림
-            jumpTimer += Time.deltaTime;
-        }
-        else
-        {
-            // 점프 할 타이밍
+            // 점프 시간 체크
+            if (jumpTimer < jumpInterval)
+            {
+                // 점프 할 타이밍이 아니면 시간을 더하면서 기다림
+                jumpTimer += Time.deltaTime;
+            }
+            else
+            {
+                // 점프 할 타이밍
 
-            // 점프 애니메이션 트리거
-            animator.SetTrigger("Jump");
+                // 점프 애니메이션 트리거
+                animator.SetTrigger("Jump");
 
-            // Y축으로 점프 jumpForce 만큼의 힘으로
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+                // Y축으로 점프 jumpForce 만큼의 힘으로
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
 
-            // 점프 타이머 초기화
-            jumpTimer = 0f;
+                // 점프 타이머 초기화
+                jumpTimer = 0f;
+            } 
         }
 
         // 땅에 닿았는지 체크

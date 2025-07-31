@@ -7,6 +7,8 @@ public class TrackingEnemyController : EnemyController
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     protected override void Start()
     {
+        healthPoint = 40;
+
         base.Start();
     }
 
@@ -22,7 +24,7 @@ public class TrackingEnemyController : EnemyController
         float distancePlayer = Vector2.Distance(transform.position, player.transform.position);
 
         // 거리가 기준보다 가까우면
-        if (distancePlayer < detectionRange)
+        if (distancePlayer < detectionRange && hitFlag == false)
         {
             // 벡터에서 스칼라 값을 빼고 방향만 본다
             Vector2 directionToPlayer = (player.transform.position - transform.position).normalized;

@@ -4,6 +4,9 @@ using UnityEngine;
 public class EnemyController : MonoBehaviour
 {
     protected float speed = 3f;
+    protected float hitForce = 4f;
+
+    protected bool hitFlag = false;
 
     protected Animator animator;
     protected BoxCollider2D boxCollider;
@@ -13,6 +16,8 @@ public class EnemyController : MonoBehaviour
     protected PlayerController playerController;
 
     protected SpriteRenderer spriteRenderer;
+
+    protected int healthPoint = 20;
 
     ContactPoint2D[] contacts = new ContactPoint2D[10];
 
@@ -27,6 +32,8 @@ public class EnemyController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
 
         spriteRenderer = GetComponent<SpriteRenderer>();
+
+        hitFlag = false;
     }
 
     // Update is called once per frame
@@ -63,8 +70,6 @@ public class EnemyController : MonoBehaviour
                         // Death 코루틴 호출
                         StartCoroutine(Death());
 
-                        // 점수 100점 추가
-                        GameManager.Instance.IncreasScore(100);
                     }
                 }
                 // 가로쪽 충돌
@@ -76,8 +81,11 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    protected IEnumerator Death()
+    public IEnumerator Death()
     {
+        // 점수 100점 추가
+        GameManager.Instance.IncreasScore(100);
+
         // 애니메이션 Death를 재생
         animator.SetTrigger("Death");
 
@@ -99,5 +107,48 @@ public class EnemyController : MonoBehaviour
         }
 
         Destroy(gameObject);
+    }
+
+    public void Hit(int sign, int damage)
+    {
+        StartCoroutine(HitCoroutine(sign, damage));
+    }
+
+    private IEnumerator HitCoroutine(int sign, int damage)
+    {
+        // 원래 속도를 저장해 놓음
+        Vector2 originVelocity = rb.linearVelocity;
+
+        //Debug.Log(hitForce * (sign));
+
+        // hit 모션 진행 중일때에는 hit == true
+        hitFlag = true;
+        // hit 모션은 밀려나도록 속도만 조절
+        rb.linearVelocity = new Vector2((hitForce * sign) / 2, hitForce);
+
+        // 총 hit 모션 시간
+        float hitDuration = 0.65f;
+        float timer = 0f;
+        while (timer < hitDuration)
+        {
+            timer += Time.deltaTime;
+
+            yield return null; // 다음 프레임까지 대기
+        }
+
+        // hit 모션이 끝나면 원래 속도를 되돌림
+        rb.linearVelocity = originVelocity;
+
+        // hit 모션 종료
+        hitFlag = false;
+
+        // 체력을 깎는다
+        healthPoint -= damage;
+
+        if (healthPoint <= 0)
+        {
+            // 체력이 0이 되면 사망
+            StartCoroutine(Death());
+        }
     }
 }

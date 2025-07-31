@@ -9,6 +9,8 @@ public class PatrolEnemyController : EnemyController
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     protected override void Start()
     {
+        healthPoint = 30;
+
         base.Start();
     }
 
@@ -21,8 +23,11 @@ public class PatrolEnemyController : EnemyController
     private void FixedUpdate()
     {
         // ¿Ãµø
-        transform.Translate(Vector2.right * direction * speed * Time.deltaTime);
-        animator.SetFloat("Speed", speed);
+        if (hitFlag == false)
+        {
+            transform.Translate(Vector2.right * direction * speed * Time.deltaTime);
+            animator.SetFloat("Speed", speed);
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
