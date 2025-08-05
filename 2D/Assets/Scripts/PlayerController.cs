@@ -1,7 +1,9 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 using UnityEngine.Timeline;
 
@@ -16,11 +18,17 @@ public class PlayerController : MonoBehaviour
     float moveSpeed = 5f;
 
     float jumpForce = 8.8f;
+    int jumpCount = 2;
     bool isGrounded = false;
+
+    bool isCrouch = false;
+
+    float fireCooltime = 0.2f;
+    float fireTime = 0;
+    bool isFire = false;
+
     int groundLayer = -1;
     int usableLayer = -1;
-
-    int jumpCount = 2;
 
     Vector2 respawnPoint = Vector2.zero;
 
@@ -28,8 +36,9 @@ public class PlayerController : MonoBehaviour
     Vector2 attackOffset;
     Vector2 attackSize = new Vector2(3.3f, 0.5f);
     float attackAngle = 0f;
+    float frontVertical = 0f;
 
-    int viewSign = 0;
+    int direction = 1;
 
     bool isHitMotion = false;
 
@@ -75,12 +84,25 @@ public class PlayerController : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.X))
         {
+            animator.SetLayerWeight(1, 1f);
             animator.SetBool("IsGun", true);
-            Instantiate(bulletObject, transform);
+            isFire = true;
         }
         else if (Input.GetKeyUp(KeyCode.X))
         {
+            animator.SetLayerWeight(1, 0f);
             animator.SetBool("IsGun", false);
+            isFire = false;
+        }
+
+        if (isFire == true)
+        {
+            fireTime += Time.deltaTime;
+            if (fireTime > fireCooltime)
+            {
+                GunFire();
+                fireTime = 0f;
+            }
         }
     }
 
@@ -123,6 +145,7 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        float vertical = Input.GetAxis("Vertical");
         float move = Input.GetAxis("Horizontal") * moveSpeed;
 
         if (isHitMotion == true)
@@ -130,7 +153,30 @@ public class PlayerController : MonoBehaviour
             move = 0;
         }
 
-        rb.linearVelocity = new Vector2(move, rb.linearVelocity.y);
+        if (frontVertical == 0 && vertical < 0)
+        {
+            isCrouch = true;
+            animator.SetBool("IsCrouch", true);
+        }
+        else if (frontVertical < 0 && frontVertical < vertical)
+        {
+            animator.SetBool("IsCrouch", false);
+        }
+        else if (vertical >= 0)
+        {
+            isCrouch = false;
+        }
+
+        frontVertical = vertical;
+
+        if (isGrounded == true && isCrouch == true)
+        {
+            rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+        }
+        else
+        {
+            rb.linearVelocity = new Vector2(move, rb.linearVelocity.y);
+        }
 
         int sign = Math.Sign(move);
 
@@ -140,14 +186,14 @@ public class PlayerController : MonoBehaviour
 
         if (move < 0)
         {
-            viewSign = sign;
+            direction = sign;
 
             SpriteRenderer.flipX = true;
             attackOffset = new Vector2(attackInitOffset.x * sign, attackInitOffset.y);
         }
         else if (move > 0)
         {
-            viewSign = sign;
+            direction = sign;
 
             SpriteRenderer.flipX = false;
             attackOffset = new Vector2(attackInitOffset.x * sign, attackInitOffset.y);
@@ -213,7 +259,7 @@ public class PlayerController : MonoBehaviour
                         isHit = true;
 
                         // 10 데미지 만큼만 체력을 깎는다
-                        hit.GetComponent<EnemyController>().Hit(viewSign, 10);
+                        hit.GetComponent<EnemyController>().Hit(direction, 10);
 
                         //StartCoroutine(hit.GetComponent<EnemyController>().Death());
                     }
@@ -226,5 +272,25 @@ public class PlayerController : MonoBehaviour
         }
 
         isHitMotion = false;
+    }
+
+    private void GunFire()
+    {
+        float fireY = 1.5f;
+        if (isCrouch == true && isGrounded == true)
+        {
+            fireY = 0.7f;
+        }
+
+        GameObject newBullet = Instantiate(bulletObject, transform.position + new Vector3(0.8f * direction, fireY), Quaternion.identity);
+
+        SpriteRenderer sprite = newBullet.GetComponent<SpriteRenderer>();
+        sprite.flipX = direction == 1 ? false : true;
+
+        BulletController bulletScript = newBullet.GetComponent<BulletController>();
+        if (bulletScript != null)
+        {
+            bulletScript.direction = direction;
+        }
     }
 }

@@ -7,9 +7,10 @@ public class EnemyController : MonoBehaviour
     protected float hitForce = 4f;
 
     protected bool hitFlag = false;
+    protected int hitCount = 0;
 
     protected Animator animator;
-    protected BoxCollider2D boxCollider;
+    protected Collider2D colliderBox;
     protected Rigidbody2D rb;
 
     protected GameObject player;
@@ -18,6 +19,10 @@ public class EnemyController : MonoBehaviour
     protected SpriteRenderer spriteRenderer;
 
     protected int healthPoint = 20;
+
+    protected bool isDeath = false;
+
+    private Vector2 originVelocity;
 
     ContactPoint2D[] contacts = new ContactPoint2D[10];
 
@@ -28,7 +33,7 @@ public class EnemyController : MonoBehaviour
         playerController = player.GetComponent<PlayerController>();
 
         animator = GetComponent<Animator>();
-        boxCollider = GetComponent<BoxCollider2D>();
+        colliderBox = GetComponent<Collider2D>();
         rb = GetComponent<Rigidbody2D>();
 
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -83,30 +88,35 @@ public class EnemyController : MonoBehaviour
 
     public IEnumerator Death()
     {
-        // 점수 100점 추가
-        GameManager.Instance.IncreasScore(100);
-
-        // 애니메이션 Death를 재생
-        animator.SetTrigger("Death");
-
-        // 위치를 고정시킴
-        speed = 0;
-
-        // 더 이상 물리적인 상호작용을 하지 않음
-        boxCollider.enabled = false;
-        rb.simulated = false;
-
-        // 애니메이션이 재생 완료 될 때 까지 기다림
-        float animationDuration = 0.7f;
-        float timer = 0f;
-        while (timer < animationDuration)
+        if (isDeath == false)
         {
-            timer += Time.deltaTime;
+            isDeath = true;
 
-            yield return null; // 다음 프레임까지 대기
+            // 점수 100점 추가
+            GameManager.Instance.IncreasScore(100);
+
+            // 애니메이션 Death를 재생
+            animator.SetTrigger("Death");
+
+            // 위치를 고정시킴
+            speed = 0;
+
+            // 더 이상 물리적인 상호작용을 하지 않음
+            colliderBox.enabled = false;
+            rb.simulated = false;
+
+            // 애니메이션이 재생 완료 될 때 까지 기다림
+            float animationDuration = 0.7f;
+            float timer = 0f;
+            while (timer < animationDuration)
+            {
+                timer += Time.deltaTime;
+
+                yield return null; // 다음 프레임까지 대기
+            }
+
+            Destroy(gameObject);
         }
-
-        Destroy(gameObject);
     }
 
     public void Hit(int sign, int damage)
@@ -116,13 +126,15 @@ public class EnemyController : MonoBehaviour
 
     private IEnumerator HitCoroutine(int sign, int damage)
     {
-        // 원래 속도를 저장해 놓음
-        Vector2 originVelocity = rb.linearVelocity;
-
-        //Debug.Log(hitForce * (sign));
+        if (hitCount == 0)
+        {
+            // 원래 속도를 저장해 놓음
+            originVelocity = rb.linearVelocity;
+        }
 
         // hit 모션 진행 중일때에는 hit == true
         hitFlag = true;
+        hitCount++;
         // hit 모션은 밀려나도록 속도만 조절
         rb.linearVelocity = new Vector2((hitForce * sign) / 2, hitForce);
 
@@ -136,11 +148,16 @@ public class EnemyController : MonoBehaviour
             yield return null; // 다음 프레임까지 대기
         }
 
-        // hit 모션이 끝나면 원래 속도를 되돌림
-        rb.linearVelocity = originVelocity;
 
         // hit 모션 종료
         hitFlag = false;
+        hitCount--;
+
+        if (hitCount == 0)
+        {
+            // hit 모션이 끝나면 원래 속도를 되돌림
+            rb.linearVelocity = originVelocity;
+        }
 
         // 체력을 깎는다
         healthPoint -= damage;

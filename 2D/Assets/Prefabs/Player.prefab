@@ -152,6 +152,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c42d15865a34f96499717847262b670c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bulletObject: {fileID: 8574310464310351610, guid: af788ec5fbfa1654ca056e7e62f41c86,
+    type: 3}
 --- !u!70 &8396136406203582229
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

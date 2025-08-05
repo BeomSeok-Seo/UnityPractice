@@ -1511,6 +1511,11 @@ PrefabInstance:
       propertyPath: m_FlipX
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5212608217017992671, guid: 7a0e2ed6b7f92ed44b21262523b45660,
+        type: 3}
+      propertyPath: m_Constraints
+      value: 4
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -4633,7 +4638,7 @@ GameObject:
   - component: {fileID: 1864251122}
   m_Layer: 31
   m_Name: Tilemap
-  m_TagString: Untagged
+  m_TagString: Platform
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -16562,6 +16567,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5212608217017992671, guid: 7a0e2ed6b7f92ed44b21262523b45660,
+        type: 3}
+      propertyPath: m_Constraints
+      value: 4
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -16643,12 +16653,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1332057740486315030, guid: 36534803f0f5bef4b8043116cf90d553,
-        type: 3}
-      propertyPath: bulletObject
-      value: 
-      objectReference: {fileID: 8574310464310351610, guid: af788ec5fbfa1654ca056e7e62f41c86,
-        type: 3}
     - target: {fileID: 4486758468197209192, guid: 36534803f0f5bef4b8043116cf90d553,
         type: 3}
       propertyPath: m_Name
