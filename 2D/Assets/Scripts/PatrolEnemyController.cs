@@ -30,14 +30,18 @@ public class PatrolEnemyController : EnemyController
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    protected override void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("TurnPoint"))
         {
             // 방향 전환
             direction *= -1;
             spriteRenderer.flipX = !spriteRenderer.flipX;
+
+            Debug.Log(collision.name + " " + direction);
         }
+
+        base.OnTriggerEnter2D(collision);
     }
 
 }

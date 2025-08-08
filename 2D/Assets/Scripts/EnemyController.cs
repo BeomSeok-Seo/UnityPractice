@@ -50,37 +50,85 @@ public class EnemyController : MonoBehaviour
     protected virtual void OnCollisionEnter2D(Collision2D collision)
     {
 
-        if (collision.collider.CompareTag("Player"))
+        //if (collision.collider.CompareTag("Player"))
+        //{
+        //    //Debug.Log("Player!!");
+        //    int numContacts = collision.GetContacts(contacts);
+
+        //    if (numContacts > 0)
+        //    {
+        //        Vector2 contactPoint = contacts[0].point;
+        //        Vector2 center = transform.position;
+
+        //        // Normalized로 스칼라 값을 없앰
+        //        Vector2 direction = (contactPoint - center).normalized;
+
+        //        Debug.Log($"direction.x : {direction.x}");
+        //        Debug.Log($"direction.y : {direction.y}");
+
+        //        // y의 크기가 x의 크기보다 크면 세로쪽 충돌이라는 뜻
+        //        if (Mathf.Abs(direction.y) > Mathf.Abs(direction.x))
+        //        {
+        //            // 위에서 충돌
+        //            if (direction.y > 0)
+        //            {
+        //                // 플레이어의 짧은 점프
+        //                playerController.HalfJump();
+
+        //                // Death 코루틴 호출
+        //                StartCoroutine(Death());
+
+        //            }
+        //        }
+        //        // 가로쪽 충돌
+        //        else
+        //        {
+        //            //playerController.Respawn();
+        //            playerController.HitAttack();
+        //        }
+        //    }
+        //}
+    }
+
+    protected virtual void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision is BoxCollider2D box)
         {
-            //Debug.Log("Player!!");
-            int numContacts = collision.GetContacts(contacts);
-
-            if (numContacts > 0)
+            if (box.CompareTag("Player"))
             {
-                Vector2 contactPoint = contacts[0].point;
-                Vector2 center = transform.position;
+                int numContacts = box.GetContacts(contacts);
 
-                // Normalized로 스칼라 값을 없앰
-                Vector2 direction = (contactPoint - center).normalized;
-
-                // y의 크기가 x의 크기보다 크면 세로쪽 충돌이라는 뜻
-                if (Mathf.Abs(direction.y) > Mathf.Abs(direction.x))
+                if (numContacts > 0)
                 {
-                    // 위에서 충돌
-                    if (direction.y > 0)
+                    Vector2 contactPoint = contacts[0].point;
+                    Vector2 center = transform.position;
+
+                    // Normalized로 스칼라 값을 없앰
+                    Vector2 direction = (contactPoint - center).normalized;
+
+                    Debug.Log($"direction.x : {direction.x}");
+                    Debug.Log($"direction.y : {direction.y}");
+
+                    // y의 크기가 x의 크기보다 크면 세로쪽 충돌이라는 뜻
+                    if (Mathf.Abs(direction.y) > Mathf.Abs(direction.x))
                     {
-                        // 플레이어의 짧은 점프
-                        playerController.HalfJump();
+                        // 위에서 충돌
+                        if (direction.y > 0)
+                        {
+                            // 플레이어의 짧은 점프
+                            playerController.HalfJump();
 
-                        // Death 코루틴 호출
-                        StartCoroutine(Death());
+                            // Death 코루틴 호출
+                            StartCoroutine(Death());
 
+                        }
                     }
-                }
-                // 가로쪽 충돌
-                else
-                {
-                    playerController.Respawn();
+                    // 가로쪽 충돌
+                    else
+                    {
+                        //playerController.Respawn();
+                        playerController.HitAttack();
+                    }
                 }
             }
         }

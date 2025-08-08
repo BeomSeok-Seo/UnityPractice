@@ -3,7 +3,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 using UnityEngine.Timeline;
 
@@ -14,7 +13,7 @@ public class PlayerController : MonoBehaviour
     Animator animator;
     Rigidbody2D rb;
 
-    SpriteRenderer SpriteRenderer;
+    SpriteRenderer spriteRenderer;
     float moveSpeed = 5f;
 
     float jumpForce = 8.8f;
@@ -50,7 +49,7 @@ public class PlayerController : MonoBehaviour
 
         rb = GetComponent<Rigidbody2D>();
 
-        SpriteRenderer = GetComponent<SpriteRenderer>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
 
         groundLayer = LayerMask.GetMask("Platform");
         usableLayer = LayerMask.GetMask("Usable");
@@ -137,6 +136,20 @@ public class PlayerController : MonoBehaviour
         transform.position = respawnPoint;
     }
 
+    public void HitAttack()
+    {
+        StartCoroutine(HitFlash());
+
+        GameManager.Instance.ChangePlayerHealth(-1);
+    }
+
+    private IEnumerator HitFlash()
+    {
+        spriteRenderer.color = Color.red;
+        yield return new WaitForSeconds(0.1f);
+        spriteRenderer.color = Color.white;
+    }
+
     public void HalfJump()
     {
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce / 2);
@@ -145,6 +158,11 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (GameManager.Instance.gameOver) 
+        {
+            return;
+        }
+
         float vertical = Input.GetAxis("Vertical");
         float move = Input.GetAxis("Horizontal") * moveSpeed;
 
@@ -188,14 +206,14 @@ public class PlayerController : MonoBehaviour
         {
             direction = sign;
 
-            SpriteRenderer.flipX = true;
+            spriteRenderer.flipX = true;
             attackOffset = new Vector2(attackInitOffset.x * sign, attackInitOffset.y);
         }
         else if (move > 0)
         {
             direction = sign;
 
-            SpriteRenderer.flipX = false;
+            spriteRenderer.flipX = false;
             attackOffset = new Vector2(attackInitOffset.x * sign, attackInitOffset.y);
         }
 
@@ -222,6 +240,7 @@ public class PlayerController : MonoBehaviour
 
         if (collision.CompareTag("DeathZone"))
         {
+            GameManager.Instance.ChangePlayerHealth(-1);
             Respawn();
         }
 

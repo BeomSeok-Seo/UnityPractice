@@ -1,4 +1,5 @@
 using DG.Tweening;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -9,10 +10,16 @@ public class GameManager : MonoBehaviour
     public GameObject doorObject;
     public GameObject clearPanel;
 
+    private GameObject playerHealthUI;
+    private CanvasGroup gameOverGroup;
+
     public int score = 0;
     private int clearScore = 250;
 
+    private int playerHealth = 3;
+
     public bool stageClear = false;
+    public bool gameOver = false;
 
     TMP_Text scoreText;
 
@@ -27,6 +34,10 @@ public class GameManager : MonoBehaviour
         Instance = this;
 
         DontDestroyOnLoad(gameObject);
+
+        playerHealthUI = transform.Find("UICanvas")?.Find("PlayerHealth")?.gameObject;
+        GameObject gameOverUI = transform.Find("GameOver")?.gameObject;
+        gameOverGroup = gameOverUI.GetComponent<CanvasGroup>();
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -42,6 +53,35 @@ public class GameManager : MonoBehaviour
         
     }
 
+    public void ChangePlayerHealth(int damage)
+    {
+        playerHealth += damage;
+
+        Transform healthObjTf;
+        Transform hpTf;
+
+        for (int i = 0; i < playerHealthUI.transform.childCount; i++)
+        {
+            healthObjTf = playerHealthUI.transform.GetChild(i);
+
+            hpTf = healthObjTf.GetChild(0);
+
+            if (i < playerHealth)
+            {
+                hpTf.gameObject.SetActive(true);
+            }
+            else
+            {
+                hpTf.gameObject.SetActive(false);
+            }
+        }
+
+        if (playerHealth == 0)
+        {
+            GameOver();
+        }
+    }
+
     public void IncreasScore(int score)
     {
         this.score += score;
@@ -51,11 +91,6 @@ public class GameManager : MonoBehaviour
             OpenNextStage();
         }
         scoreText.text = $"Score : {this.score}";
-    }
-
-    private void OpenNextStage()
-    {
-        doorObject.GetComponent<DoorController>().DoorOpen();
     }
 
     public void CheckStageClear()
@@ -71,5 +106,35 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Next!");
         SceneManager.LoadScene("Stage2");
+    }
+
+    public void GameOver()
+    {
+        gameOver = true;
+
+        StartCoroutine(GameOverFadeIn());
+    }
+
+    private IEnumerator GameOverFadeIn()
+    {
+        float fadeDuration = 2f;
+
+        float currentTime = 0f;
+        float startAlpha = gameOverGroup.alpha;
+        while (currentTime < fadeDuration)
+        {
+            currentTime += Time.deltaTime;
+
+            float newAlpha = Mathf.Lerp(startAlpha, 1f, currentTime / fadeDuration);
+            gameOverGroup.alpha = newAlpha;
+            yield return null; 
+        }
+
+        gameOverGroup.alpha = 1f;
+    }
+
+    private void OpenNextStage()
+    {
+        doorObject.GetComponent<DoorController>().DoorOpen();
     }
 }
