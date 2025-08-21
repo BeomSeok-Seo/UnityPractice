@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour
     private float mouseY;
 
     // 이동 변수
-    private float moveSpeed = 5f;
+    private float moveSpeed = 3f;
 
     private float horizontalInput;
     private float verticalInput;
@@ -30,10 +30,18 @@ public class PlayerController : MonoBehaviour
     //private int maxBullet = 30;
     //private int remaingBullet = 30;
 
+    // 총기 Recoil 변수
+    Vector3 targetRotation;
+    Vector3 currentRotation;
+    float returnSpeed = 5f;
+    float recoilSpeed = 5f;
+    float recoilAmount = 10f;
+
     public GameObject[] weaponList;
-    private int weaponIndex = 0;
+    private int weaponIndex = -1;
     private int[] maxBulletList = new int[] { 30, 6, 1 };
     private List<int> remaingBulletList = new List<int>() { 30, 6, 1 };
+    private int[] weaponDamageList = new int[] { 5, 15, 30 };
     private Animator currentWeaponAnimator;
 
     // 카메라
@@ -50,6 +58,7 @@ public class PlayerController : MonoBehaviour
         cameraTransform = transform.Find("Main Camera");
         BulletUI = GameObject.Find("UI").transform.Find("BulletUI").GetComponent<TMP_Text>();
 
+        // 무기 초기화
         SetWeapon(0);
     }
 
@@ -71,8 +80,15 @@ public class PlayerController : MonoBehaviour
         horizontalInput = Input.GetAxis("Horizontal");
         verticalInput = Input.GetAxis("Vertical");
 
-        Vector3 moveDirection = new Vector3(horizontalInput, 0f, verticalInput).normalized;
-        transform.Translate(moveDirection * moveSpeed * Time.deltaTime);
+        // rigidBody에 이동 속도 지정
+        Vector3 moveInput = new Vector3(horizontalInput, 0f, verticalInput);
+        Vector3 move = moveInput * moveSpeed;
+
+        rigidBody.linearVelocity = new Vector3(move.x, rigidBody.linearVelocity.y, move.z);
+
+        // 이동 애니메이션 계산
+        float speed = new Vector3(rigidBody.linearVelocity.x, 0, rigidBody.linearVelocity.z).magnitude;
+        currentWeaponAnimator.SetFloat("speed", speed);
 
         // 점프
         isGrounded = Physics.Raycast(transform.position, Vector3.down, 0.8f);
@@ -83,12 +99,11 @@ public class PlayerController : MonoBehaviour
             rigidBody.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
         }
 
+        // 재장전
         if (Input.GetKeyDown(KeyCode.R))
         {
             Reload();
         }
-
-
 
         // 총 쏘기 raycast
         if (Input.GetMouseButtonDown(0))
@@ -96,6 +111,12 @@ public class PlayerController : MonoBehaviour
             Fire();
         }
 
+        // recoil
+        //targetRotation = Vector3.Lerp(targetRotation, Vector3.zero, returnSpeed * Time.deltaTime);
+        //currentRotation = Vector3.Slerp(currentRotation, targetRotation, recoilSpeed * Time.deltaTime);
+        //cameraTransform.localRotation = Quaternion.Euler(currentRotation);
+
+        // 무기 변경
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             SetWeapon(0);
@@ -124,6 +145,7 @@ public class PlayerController : MonoBehaviour
 
     private void Fire()
     {
+        // 남은 총알이 0이면
         if (remaingBulletList[weaponIndex] == 0)
         {
             return;
@@ -141,8 +163,10 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
+        // 남은 총알 감소
         remaingBulletList[weaponIndex]--;
 
+        // 남은 총알 UI에 출력
         ShowBulletUI();
 
         // 파티클 이펙트
@@ -151,20 +175,27 @@ public class PlayerController : MonoBehaviour
 
         currentWeaponAnimator.SetTrigger("fire");
 
+        // 총알 히트스캔 range 거리까지만
         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         if (Physics.Raycast(ray, out RaycastHit hit, range))
         {
+            // 총알에 맞는 객체의 태그가 Enemy일 때
             if (hit.collider.CompareTag("Enemy"))
             {
+                // 피격 파티클 이펙트
                 GameObject hitfire = Instantiate(hitEffect, hit.point, Quaternion.identity);
-
                 Destroy(hitfire, 0.6f);
 
-                hit.collider.GetComponent<EnemyController>().TakeDamage(10);
+                // 피격 데미지 함수 호출
+                hit.collider.GetComponent<EnemyController>().TakeDamage(weaponDamageList[weaponIndex]);
             }
         }
+
+        // ApplyRecoil
+        //targetRotation += new Vector3(-recoilAmount, UnityEngine.Random.Range(-1f, 1f), 0f);
     }
 
+    // 재장전
     private void Reload()
     {
         currentWeaponAnimator.SetTrigger("reload");
@@ -173,32 +204,45 @@ public class PlayerController : MonoBehaviour
         ShowBulletUI();
     }
 
+    // 남은 총알 출력
     private void ShowBulletUI()
     {
         BulletUI.text = $"{remaingBulletList[weaponIndex]} / {maxBulletList[weaponIndex]}";
     }
 
+    // 무기 변경
     private void SetWeapon(int numberIndex)
     {
+        // 현재 무기와 입력 무기가 같으면 동작 안함
+        if (weaponIndex == numberIndex)
+        {
+            return;
+        }
+
+        // 무기 모두 비활성화
         foreach (var weapon in weaponList)
         {
             weapon.SetActive(false);
         }
 
         object target = weaponList.GetValue(numberIndex);
+
         if (target != null)
         {
             weaponIndex = numberIndex;
 
+            // 선택 무기 활성화
             GameObject targetWeapon = target as GameObject;
             targetWeapon.SetActive(true);
 
+            // 무기 변경 애니메이션 출력
             currentWeaponAnimator = targetWeapon.GetComponentInChildren<Animator>();
 
             currentWeaponAnimator.SetTrigger("selected");
             currentWeaponAnimator.SetFloat("reloadSpeed", 1);
             currentWeaponAnimator.SetFloat("fireSpeed", 1);
 
+            // 남은 총알 출력
             ShowBulletUI();
         }
     }
