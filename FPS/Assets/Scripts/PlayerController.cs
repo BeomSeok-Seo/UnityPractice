@@ -19,7 +19,7 @@ public class PlayerController : MonoBehaviour
     private float verticalInput;
 
     // 점프 변수
-    private float jumpForce = 8f;
+    private float jumpForce = 5f;
     private bool isGrounded = false;
     private Rigidbody rigidBody;
 
@@ -82,7 +82,7 @@ public class PlayerController : MonoBehaviour
 
         // rigidBody에 이동 속도 지정
         Vector3 moveInput = new Vector3(horizontalInput, 0f, verticalInput);
-        Vector3 move = moveInput * moveSpeed;
+        Vector3 move = transform.TransformDirection(moveInput) * moveSpeed;
 
         rigidBody.linearVelocity = new Vector3(move.x, rigidBody.linearVelocity.y, move.z);
 

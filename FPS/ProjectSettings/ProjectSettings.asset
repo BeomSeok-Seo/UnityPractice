@@ -958,12 +958,12 @@ PlayerSettings:
   qnxGraphicConfPath: 
   apiCompatibilityLevel: 6
   captureStartupLogs: {}
-  activeInputHandler: 0
+  activeInputHandler: 2
   windowsGamepadBackendHint: 0
   cloudProjectId: 3e90388f-5f8c-4668-a530-46311f9d25f9
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: 
+  projectName: SBS_FPS_3D
   organizationId: beomseok1828
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
