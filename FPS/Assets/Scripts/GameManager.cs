@@ -25,6 +25,11 @@ public class GameManager : MonoBehaviour
     {
         UIObject = GameObject.Find("SettingUI");
         UIObject.SetActive(activeUI);
+
+        // To-Do : 시작할 때 몹을 스폰하도록 넣어보기
+        // 그 이후에는 웨이브개념 추가
+        // 종료까지
+
     }
 
     // Update is called once per frame

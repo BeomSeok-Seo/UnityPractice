@@ -1,7 +1,11 @@
 using Mono.Cecil.Cil;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 public class PlayerController : MonoBehaviour
 {
@@ -22,6 +26,10 @@ public class PlayerController : MonoBehaviour
     private float jumpForce = 5f;
     private bool isGrounded = false;
     private Rigidbody rigidBody;
+
+    // 체력 변수
+    private float MaxHp = 200f;
+    private float Hp = 200f;
 
     // 총기 변수
     private float range = 10f;
@@ -49,6 +57,12 @@ public class PlayerController : MonoBehaviour
 
     // UI
     private TMP_Text BulletUI;
+    private TMP_Text HealthUI;
+    private GameObject HitPanel;
+    private GameObject DebuffUI;
+    private UnityEngine.UI.Image DebuffUIUpper;
+
+    private float dotEndTime = -1;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -57,6 +71,12 @@ public class PlayerController : MonoBehaviour
 
         cameraTransform = transform.Find("Main Camera");
         BulletUI = GameObject.Find("UI").transform.Find("BulletUI").GetComponent<TMP_Text>();
+        HealthUI = GameObject.Find("UI").transform.Find("HealthUI").GetComponent<TMP_Text>();
+        HitPanel = GameObject.Find("UI").transform.Find("HitPanel").gameObject;
+        DebuffUI = GameObject.Find("UI").transform.Find("Debuff").gameObject;
+        DebuffUIUpper = GameObject.Find("UI").transform.Find("Debuff").Find("Upper").GetComponent<UnityEngine.UI.Image>();
+
+        HitPanel.SetActive(false);
 
         // 무기 초기화
         SetWeapon(0);
@@ -137,6 +157,60 @@ public class PlayerController : MonoBehaviour
         
     }
 
+
+    public void TakeDamage(float damage)
+    {
+        HitPanel.SetActive(true);
+        Invoke("DisableHitPanel", 0.1f);
+
+        Hp -= damage;
+        if (Hp <= 0)
+        {
+            Hp = 0;
+        }
+
+        ShowHealthUI();
+    }
+
+    public void TakeDotDamage(float damage, float duration, float interval)
+    {
+        StartCoroutine(DotDamage(damage, duration, interval));
+    }
+
+    private IEnumerator DotDamage(float damage, float duration, float interval)
+    {
+        float timer = 0;
+        float intervalTimer = 0;
+        dotEndTime = duration;
+
+        // 디버프 타이머 보이기
+        DebuffUI.SetActive(true);
+
+        // 초기 데미지
+        TakeDamage(damage);
+
+        while (timer < dotEndTime)
+        {
+            // 일정 시간이 지나면
+            if (intervalTimer > interval)
+            {
+                // 데미지 받음
+                TakeDamage(damage);
+                intervalTimer = 0;
+            }
+
+            timer += Time.deltaTime;
+            intervalTimer += Time.deltaTime;
+
+            // 디버프 타이머 UI 회전 표시
+            DebuffUIUpper.fillAmount = 1 - (timer / duration);
+
+            yield return null;
+        }
+
+        DebuffUI.SetActive(false);
+    }
+
     public void SetMouseSensitivity(float sensitivity)
     {
         //Debug.Log("Slider Value Changed: " + sensitivity);
@@ -210,6 +284,11 @@ public class PlayerController : MonoBehaviour
         BulletUI.text = $"{remaingBulletList[weaponIndex]} / {maxBulletList[weaponIndex]}";
     }
 
+    private void ShowHealthUI()
+    {
+        HealthUI.text = $"{Hp} / {MaxHp}";
+    }
+
     // 무기 변경
     private void SetWeapon(int numberIndex)
     {
@@ -245,5 +324,10 @@ public class PlayerController : MonoBehaviour
             // 남은 총알 출력
             ShowBulletUI();
         }
+    }
+
+    private void DisableHitPanel()
+    {
+        HitPanel.SetActive(false);
     }
 }
