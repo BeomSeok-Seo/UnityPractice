@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4455442535169828362}
   m_Layer: 0
-  m_Name: EnemyObject
+  m_Name: HammerEnemyObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -50,6 +50,16 @@ PrefabInstance:
       propertyPath: m_IsKinematic
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1517644384871940927, guid: 8f5e135a19626f544908fc8f156144b9,
+        type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a6f0c7d0dcaa85241b37f826718f77d8, type: 2}
+    - target: {fileID: 3578778105269436370, guid: 8f5e135a19626f544908fc8f156144b9,
+        type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a6f0c7d0dcaa85241b37f826718f77d8, type: 2}
     - target: {fileID: 3992316741825542820, guid: 8f5e135a19626f544908fc8f156144b9,
         type: 3}
       propertyPath: HealthBarUI
@@ -143,6 +153,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6485230121340739831, guid: 8f5e135a19626f544908fc8f156144b9,
+        type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a6f0c7d0dcaa85241b37f826718f77d8, type: 2}
+    - target: {fileID: 6678247822658836500, guid: 8f5e135a19626f544908fc8f156144b9,
+        type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a6f0c7d0dcaa85241b37f826718f77d8, type: 2}
+    - target: {fileID: 7440822671595610206, guid: 8f5e135a19626f544908fc8f156144b9,
+        type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a6f0c7d0dcaa85241b37f826718f77d8, type: 2}
+    - target: {fileID: 7563899087584132695, guid: 8f5e135a19626f544908fc8f156144b9,
+        type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a6f0c7d0dcaa85241b37f826718f77d8, type: 2}
     m_RemovedComponents:
     - {fileID: 3992316741825542820, guid: 8f5e135a19626f544908fc8f156144b9, type: 3}
     m_RemovedGameObjects: []
@@ -151,7 +181,7 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5461052779654786451, guid: 8f5e135a19626f544908fc8f156144b9,
         type: 3}
       insertIndex: 1
-      addedObject: {fileID: 5281691281822937265}
+      addedObject: {fileID: 4807078604174154912}
     - targetCorrespondingSourceObject: {fileID: 5461052779654786451, guid: 8f5e135a19626f544908fc8f156144b9,
         type: 3}
       insertIndex: -1
@@ -167,7 +197,7 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 5096867476956526749}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &5281691281822937265
+--- !u!114 &4807078604174154912
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -176,17 +206,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 968902183167169806}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c647c9152cdaf91449f4195ca420365d, type: 3}
+  m_Script: {fileID: 11500000, guid: 0a3b13ee0aac8034ea3d065033216b0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   obstacleMask:
     serializedVersion: 2
     m_Bits: 32768
   HealthBarUI: {fileID: 1116594989094977300, guid: a9da4f2adca5d7545a4a22f79dac60bd,
-    type: 3}
-  LocalGrenade: {fileID: 7209417620919649187, guid: 0862139dbaed60e48b1257285e7c48a8,
-    type: 3}
-  WorldGrenade: {fileID: 7209417620919649187, guid: e5daedc386c4f7e469ba1bdbf91ee53e,
     type: 3}
 --- !u!195 &2803120488224148324
 NavMeshAgent:

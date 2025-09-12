@@ -32,7 +32,7 @@ public class PlayerController : MonoBehaviour
     private float Hp = 200f;
 
     // 총기 변수
-    private float range = 10f;
+    private float range = 25f;
     public GameObject fireEffect;
     public GameObject hitEffect;
     //private int maxBullet = 30;
@@ -49,7 +49,7 @@ public class PlayerController : MonoBehaviour
     private int weaponIndex = -1;
     private int[] maxBulletList = new int[] { 30, 6, 1 };
     private List<int> remaingBulletList = new List<int>() { 30, 6, 1 };
-    private int[] weaponDamageList = new int[] { 5, 15, 30 };
+    private int[] weaponDamageList = new int[] { 20, 40, 120 };
     private Animator currentWeaponAnimator;
 
     // 카메라

@@ -1,3 +1,4 @@
+using System;
 using Unity.Services.Analytics;
 using UnityEngine;
 using UnityEngine.AI;
@@ -7,24 +8,26 @@ public class EnemyController : MonoBehaviour
 {
     float MaxHp = 50;
     float hp = 50;
-    Transform player;
-    NavMeshAgent agent;
-    Animator animator;
+    protected Transform player;
+    protected NavMeshAgent agent;
+    protected Animator animator;
 
-    float viewAngle = 65f;
-    float viewDistance = 20f;
-    float attackDistance = 10f;
+    // 시야
+    protected float viewAngle = 65f;
+    protected float viewDistance = 20f;
+    protected float attackDistance = 10f;
 
     float updateRate = 0.5f;
     float nextUpdateTime = 0f;
     float speed = 2f;
 
-    float throwHeight = 2f;
-
+    // 공격
     bool isAttack = false;
+    protected float attackDelay = 1f;
+    protected float attackRepeatRate = 3f;
 
     Vector3 destPosition = Vector3.zero;
-    Transform rightHand;
+    protected Transform rightHand;
 
     Collider colliderBox;
     Rigidbody rb;
@@ -35,13 +38,13 @@ public class EnemyController : MonoBehaviour
     Camera mainCamera;
 
     public LayerMask obstacleMask;
-    public GameObject LocalGrenade;
-    public GameObject WorldGrenade;
 
     public GameObject HealthBarUI;
 
+    public Action DeadEvent;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    protected virtual void Start()
     {
         player = GameObject.Find("Player").transform;
         agent = GetComponent<NavMeshAgent>();
@@ -53,7 +56,7 @@ public class EnemyController : MonoBehaviour
         enemyHealthUI = GameObject.Find("UI").transform.Find("EnemyHealthUI").gameObject;
         mainCamera = Camera.main;
 
-        healthBarSlider = Instantiate(HealthBarUI, enemyHealthUI.transform).GetComponent<Slider>();
+        //healthBarSlider = Instantiate(HealthBarUI, enemyHealthUI.transform).GetComponent<Slider>();
 
         agent.speed = speed;
 
@@ -66,7 +69,7 @@ public class EnemyController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    protected virtual void Update()
     {
         if (Time.time >= nextUpdateTime)
         {
@@ -75,8 +78,6 @@ public class EnemyController : MonoBehaviour
             {
                 // 플레이어 위치까지 이동
                 agent.SetDestination(player.position);
-
-                animator.SetBool("LookAt", true);
 
                 // 공격 사거리 안쪽이면
                 if (distance < attackDistance) 
@@ -89,7 +90,7 @@ public class EnemyController : MonoBehaviour
                     if (isAttack == false)
                     {
                         isAttack = true;
-                        InvokeRepeating("Attack", 1f, 3f);
+                        InvokeRepeating("Attack", attackDelay, attackRepeatRate);
                     }
                 }
                 else
@@ -114,9 +115,10 @@ public class EnemyController : MonoBehaviour
             {
                 // 플레이어가 시야에서 사라지면
                 // 마지막 보인 위치까지 이동
-                agent.SetDestination(destPosition);
+                agent.isStopped = false;
+                animator.SetFloat("Speed", speed);
 
-                animator.SetBool("LookAt", false);
+                agent.SetDestination(destPosition);
 
                 // 공격은 중단
                 CancelInvoke("Attack");
@@ -137,6 +139,7 @@ public class EnemyController : MonoBehaviour
             nextUpdateTime = Time.time + updateRate;
         }
 
+        // 체력바 보이기
         if (healthBarSlider != null && mainCamera != null)
         {
             Vector3 worldPosition = transform.position + new Vector3(0, 2, 0);
@@ -156,8 +159,19 @@ public class EnemyController : MonoBehaviour
 
     }
 
+
+    protected virtual void Attack()
+    {
+    }
+
     public void TakeDamage(int damage)
     {
+        // 처음 데미지 입을때 체력바 보이기
+        if (hp == MaxHp)
+        {
+            healthBarSlider = Instantiate(HealthBarUI, enemyHealthUI.transform).GetComponent<Slider>();
+        }
+
         hp -= damage;
 
         healthBarSlider.value = hp / MaxHp;
@@ -181,48 +195,10 @@ public class EnemyController : MonoBehaviour
         rb.isKinematic = true;
 
         // 없애기
-        Destroy(gameObject, 1.5f);
+        Destroy(transform.parent.gameObject, 1.5f);
         Destroy(healthBarSlider.gameObject);
-    }
 
-    private void Attack()
-    {
-        agent.isStopped = true;
-        animator.SetFloat("Speed", 0);
-        animator.SetTrigger("Attack");
-
-        GameObject weapon = Instantiate(LocalGrenade, rightHand);
-        Destroy(weapon, 0.5f);
-
-        Invoke("InstantGrenade", 0.4f);
-    }
-
-    private void InstantGrenade()
-    {
-        GameObject bomb = Instantiate(WorldGrenade, transform.position + new Vector3(0, 2, 0), Quaternion.identity);
-        Rigidbody bombRb = bomb.GetComponent<Rigidbody>();
-
-        Vector3 startPosition = bomb.transform.position;
-        Vector3 endPosition = player.position - new Vector3(0, 1, 0);
-
-        // 수평거리, 수직거리 계산
-        Vector3 toTarget = endPosition - startPosition;
-        float horizontalDistance = new Vector3(toTarget.x, 0, toTarget.z).magnitude;
-        float verticalDistance = toTarget.y;
-
-        // 포물선 궤적을 위한 던지는 시간 계산
-        float throwTime = Mathf.Sqrt(2 * throwHeight / Mathf.Abs(Physics.gravity.y)) +
-                          Mathf.Sqrt(2 * (Mathf.Abs(verticalDistance) + throwHeight) / Mathf.Abs(Physics.gravity.y));
-
-        // 수평속도, 수직속도
-        float horizontalVelocity = horizontalDistance / throwTime;
-        float verticalVelocity = (verticalDistance + throwHeight) / throwTime + 0.5f * Mathf.Abs(Physics.gravity.y) * throwTime;
-
-        // 초기 속도 벡터 생성
-        Vector3 direction = new Vector3(toTarget.x, 0, toTarget.z).normalized;
-        Vector3 initialVelocity = direction * horizontalVelocity + Vector3.up * verticalVelocity;
-
-        bombRb.linearVelocity = initialVelocity; // AddForce 대신 velocity를 직접 설정
+        DeadEvent?.Invoke();
     }
 
     private bool CheckViewPlayer(out float distance)
