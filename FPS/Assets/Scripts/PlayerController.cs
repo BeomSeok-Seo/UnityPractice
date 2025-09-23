@@ -2,6 +2,7 @@ using Mono.Cecil.Cil;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
@@ -61,6 +62,7 @@ public class PlayerController : MonoBehaviour
     private GameObject HitPanel;
     private GameObject DebuffUI;
     private UnityEngine.UI.Image DebuffUIUpper;
+    private GameObject WarningUI;
 
     private float dotEndTime = -1;
 
@@ -75,6 +77,7 @@ public class PlayerController : MonoBehaviour
         HitPanel = GameObject.Find("UI").transform.Find("HitPanel").gameObject;
         DebuffUI = GameObject.Find("UI").transform.Find("Debuff").gameObject;
         DebuffUIUpper = GameObject.Find("UI").transform.Find("Debuff").Find("Upper").GetComponent<UnityEngine.UI.Image>();
+        WarningUI = GameObject.Find("UI").transform.Find("WarningUI").gameObject;
 
         HitPanel.SetActive(false);
 
@@ -164,6 +167,13 @@ public class PlayerController : MonoBehaviour
         Invoke("DisableHitPanel", 0.1f);
 
         Hp -= damage;
+
+        if (Hp / MaxHp < 0.3f)
+        {
+            WarningUI.SetActive(true);
+        }
+
+
         if (Hp <= 0)
         {
             Hp = 0;

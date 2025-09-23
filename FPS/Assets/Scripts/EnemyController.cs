@@ -199,6 +199,8 @@ public class EnemyController : MonoBehaviour
         Destroy(healthBarSlider.gameObject);
 
         DeadEvent?.Invoke();
+
+        GameManager.Instance.ComboEnable();
     }
 
     private bool CheckViewPlayer(out float distance)

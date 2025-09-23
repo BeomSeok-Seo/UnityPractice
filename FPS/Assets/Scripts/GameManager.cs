@@ -1,19 +1,28 @@
+using System;
 using System.Collections;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 using static UnityEngine.Rendering.DebugUI;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    private GameObject UIObject;
+    private GameObject SettingUI;
     private bool activeUI = false;
 
+    // 웨이브, 스폰 변수
     private EnemySpawnController enemySpawner;
     private TMP_Text WaveUI;
-
     private int currentStage = 0;
+
+    // 콤보 변수
+    private TMP_Text ComboUI;
+    private float comboMaxTime = 3f;
+    private int comboCount = 0;
+    private float comboTimer = 0f;
 
     private void Awake()
     {
@@ -30,11 +39,13 @@ public class GameManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        UIObject = GameObject.Find("SettingUI");
-        UIObject.SetActive(activeUI);
+        SettingUI = GameObject.Find("SettingUI");
+        SettingUI.SetActive(activeUI);
 
         enemySpawner = GameObject.Find("SpawnPoints")?.GetComponent<EnemySpawnController>();
         WaveUI = GameObject.Find("UI").transform.Find("WaveUI").GetComponent<TMP_Text>();
+
+        ComboUI = GameObject.Find("UI").transform.Find("ComboUI").GetComponent<TMP_Text>();
 
         GoNextStage();
     }
@@ -45,7 +56,7 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             activeUI = !activeUI;
-            UIObject.SetActive(activeUI);
+            SettingUI.SetActive(activeUI);
         }
     }
 
@@ -94,5 +105,39 @@ public class GameManager : MonoBehaviour
 
         // 애니메이션 종료 후 최종 크기로 고정
         WaveUI.rectTransform.localScale = new Vector3(endScale, endScale, endScale);
+    }
+
+    public void ComboEnable()
+    {
+        comboCount++;
+        comboTimer += comboMaxTime;
+
+        if (comboCount == 1)
+        {
+            ComboUI.gameObject.SetActive(true);
+            ComboUI.text = "Combo " + comboCount;
+
+            StartCoroutine(ComboCounter());
+        }
+        else
+        {
+            ComboUI.text = "Combo " + comboCount;
+        }
+    }
+
+    private IEnumerator ComboCounter()
+    {
+        float time = 0f;
+
+        while (time < comboTimer)
+        {
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        comboTimer = 0f;
+        comboCount = 0;
+
+        ComboUI.gameObject.SetActive(false);
     }
 }
