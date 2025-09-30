@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class HammerEnemyController : EnemyController
 {
+    HammerAttack hammer;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     protected override void Start()
     {
@@ -10,6 +12,9 @@ public class HammerEnemyController : EnemyController
 
         attackDelay = 0.1f;
         attackRepeatRate = 1.2f;
+
+        hammer = transform.GetComponentInChildren<HammerAttack>();
+
         base.Start();
     }
 
@@ -22,5 +27,12 @@ public class HammerEnemyController : EnemyController
     protected override void Attack()
     {
         animator.SetTrigger("Swing");
+        hammer.ResetDamage();
+        Invoke("StopHammer", 0.8f);
+    }
+
+    private void StopHammer()
+    {
+        hammer.StopDamage();
     }
 }

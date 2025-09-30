@@ -71,7 +71,7 @@ public class PlayerController : MonoBehaviour
     {
         rigidBody = GetComponent<Rigidbody>();
 
-        cameraTransform = transform.Find("Main Camera");
+        cameraTransform = transform.Find("CinemachineCameraMain");
         BulletUI = GameObject.Find("UI").transform.Find("BulletUI").GetComponent<TMP_Text>();
         HealthUI = GameObject.Find("UI").transform.Find("HealthUI").GetComponent<TMP_Text>();
         HitPanel = GameObject.Find("UI").transform.Find("HitPanel").gameObject;
@@ -88,6 +88,12 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        if (GameManager.Instance.waveStartWait) 
+        {
+            return;
+        }
+
         // 마우스 시점 조절
         mouseX = Input.GetAxis("Mouse X") * sensitivity;
         mouseY = Input.GetAxis("Mouse Y") * sensitivity;

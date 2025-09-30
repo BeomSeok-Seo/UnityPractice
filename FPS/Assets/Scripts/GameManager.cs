@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using TMPro;
+using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,6 +24,16 @@ public class GameManager : MonoBehaviour
     private float comboMaxTime = 3f;
     private int comboCount = 0;
     private float comboTimer = 0f;
+
+    public bool waveStartWait = false;
+
+    CinemachineCamera cineCamMain;
+    CinemachineCamera cineCam1;
+    CinemachineCamera cineCam2;
+    CinemachineCamera cineCam3;
+    Camera mainCamera;
+    Camera WeaponCamera;
+    CanvasGroup UICanvas;
 
     private void Awake()
     {
@@ -47,6 +58,15 @@ public class GameManager : MonoBehaviour
 
         ComboUI = GameObject.Find("UI").transform.Find("ComboUI").GetComponent<TMP_Text>();
 
+        cineCamMain = GameObject.Find("CinemachineCameraMain").GetComponent<CinemachineCamera>();
+        cineCam1 = GameObject.Find("CinemachineCamera1").GetComponent<CinemachineCamera>();
+        cineCam2 = GameObject.Find("CinemachineCamera2").GetComponent<CinemachineCamera>();
+        cineCam3 = GameObject.Find("CinemachineCamera3").GetComponent<CinemachineCamera>();
+
+        mainCamera = Camera.main;
+        WeaponCamera = GameObject.Find("Weapon Camera").GetComponent<Camera>();
+        UICanvas = GameObject.Find("UI").GetComponent<CanvasGroup>();
+
         GoNextStage();
     }
 
@@ -64,17 +84,47 @@ public class GameManager : MonoBehaviour
     {
         currentStage++;
 
-        StartCoroutine(WaveUIAnimation());
 
 
         StartCoroutine(WaveStart(currentStage));
+
+        StartCoroutine(WaveUIAnimation());
     }
 
     private IEnumerator WaveStart(int stage)
     {
-        yield return new WaitForSeconds(2.0f);
-        
+        int cullingMask = WeaponCamera.cullingMask;
+        WeaponCamera.cullingMask = 0;
+
+        UICanvas.alpha = 0;
+
+        waveStartWait = true;
+
+        cineCam3.Priority = 3;
+        cineCam2.Priority = 2;
+        cineCam1.Priority = 1;
+
+        yield return new WaitForSeconds(1.0f);
+
         enemySpawner.SpawnEnemies( 5 + (3 * stage));
+
+        cineCam3.Priority = -1;
+        yield return new WaitForSeconds(1.0f);
+
+        cineCam2.Priority = -1;
+
+        yield return new WaitForSeconds(1.0f);
+
+        cineCam1.Priority = -1;
+
+        yield return new WaitForSeconds(2.0f);
+
+        WeaponCamera.cullingMask = cullingMask;
+
+        UICanvas.alpha = 1;
+
+        waveStartWait = false;
+
     }
 
     private IEnumerator WaveUIAnimation()
@@ -84,6 +134,11 @@ public class GameManager : MonoBehaviour
         float endScale = 1.0f; // 최종 크기
 
         float elapsedTime = 0f;
+
+        while (waveStartWait)
+        {
+            yield return null;
+        }
 
         WaveUI.text = "Wave " + currentStage;
 

@@ -9,6 +9,7 @@ public class EnemySpawnController : MonoBehaviour
     private int liveEnemies = 0;
 
     public GameObject EnemyPrefab;
+    public GameObject EnemyPrefab2;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -37,6 +38,7 @@ public class EnemySpawnController : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             int target = Random.Range(0, spawnPointList.Count - 1);
+            int prefab = Random.Range(0, 2);
 
             Vector3 targetPosition = Vector3.zero;
 
@@ -44,7 +46,7 @@ public class EnemySpawnController : MonoBehaviour
             Vector3 directionToTarget = targetPosition - monsterSpawnPoint;
             Quaternion targetRotation = Quaternion.LookRotation(directionToTarget);
 
-            GameObject enemy = Instantiate(EnemyPrefab, monsterSpawnPoint, targetRotation, enemies.transform);
+            GameObject enemy = Instantiate(prefab == 0 ? EnemyPrefab : EnemyPrefab2, monsterSpawnPoint, targetRotation, enemies.transform);
 
             EnemyController controller = enemy.GetComponentInChildren<EnemyController>();
 
